@@ -13,12 +13,12 @@ import (
 *********************************************************/
 
 type TCPConnection struct {
-	uid          int64
-	running      bool
-	conn         net.Conn
-	workChannel  chan []byte
-	writeChannel chan []byte
-	readTimeout  time.Duration
+	uid         int64
+	running     bool
+	conn        net.Conn
+	reqChannel  chan []byte
+	respChannel chan []byte
+	readTimeout time.Duration
 }
 
 // I/O intensive
@@ -31,24 +31,14 @@ func (tcpConn *TCPConnection) read() {
 	}
 }
 
-// CPU intensive
-func (tcpConn *TCPConnection) handle() {
-	for tcpConn.running {
-		for data := range tcpConn.workChannel {
-			// decode
-			panic(data)
-		}
-	}
-}
-
-func (tcpConn *TCPConnection) Handle() {
-	tcpConn.running = true
+func (tcpConn *TCPConnection) GetReqChannel() chan []byte {
+	return tcpConn.reqChannel
 }
 
 func (tcpConn *TCPConnection) Close() {
 	tcpConn.running = false
-	close(tcpConn.workChannel)
-	close(tcpConn.writeChannel)
+	close(tcpConn.reqChannel)
+	close(tcpConn.respChannel)
 	tcpConn.conn.Close()
 }
 
