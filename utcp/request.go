@@ -8,6 +8,7 @@ package utcp
 *********************************************************/
 
 type IRequest interface {
+	GetId() int
 }
 
 type Request struct {

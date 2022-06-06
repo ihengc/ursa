@@ -6,3 +6,8 @@ package utcp
 * @version: 1.0
 * @description:
 *********************************************************/
+
+type ICodec interface {
+	Decode(data []byte) interface{}
+	Encode(data interface{}) []byte
+}

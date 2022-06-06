@@ -16,8 +16,8 @@ type TCPConnection struct {
 	uid         int64
 	running     bool
 	conn        net.Conn
-	reqChannel  chan []byte
-	respChannel chan []byte
+	reqChannel  chan IRequest
+	respChannel chan IResponse
 	readTimeout time.Duration
 }
 
@@ -31,8 +31,12 @@ func (tcpConn *TCPConnection) read() {
 	}
 }
 
-func (tcpConn *TCPConnection) GetReqChannel() chan []byte {
+func (tcpConn *TCPConnection) GetReqChannel() chan IRequest {
 	return tcpConn.reqChannel
+}
+
+func (tcpConn *TCPConnection) GetRespChannel() chan IResponse {
+	return tcpConn.respChannel
 }
 
 func (tcpConn *TCPConnection) Close() {
