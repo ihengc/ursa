@@ -1,6 +1,9 @@
 package utcp
 
-import "net"
+import (
+	"context"
+	"net"
+)
 
 /****************************************************************
  * @author: Ihc
@@ -12,7 +15,12 @@ type TCPServer struct {
 	ln      net.Listener
 	running bool
 	codec   ICodec
-	route   IRoute
+	route   IRouter
+	ctx     context.Context
+}
+
+func (tcpServer *TCPServer) handle(conn net.Conn) {
+
 }
 
 func (tcpServer *TCPServer) Start() {
@@ -23,23 +31,6 @@ func (tcpServer *TCPServer) Start() {
 			continue
 		}
 		go tcpServer.handle(conn)
-	}
-}
-
-func (tcpServer *TCPServer) handle(conn net.Conn) {
-	tcpConn := NewTCPConnection(1, conn)
-
-	reqChannel := tcpConn.GetReqChannel()
-	respChannel := tcpConn.GetRespChannel()
-	for {
-		req, ok := <-reqChannel
-		if !ok {
-			break
-		}
-		handler := tcpServer.route.GetHandler(req.GetId())
-		resp := NewResponse()
-		handler(req, resp)
-		respChannel <- resp
 	}
 }
 
