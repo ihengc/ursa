@@ -1,5 +1,7 @@
 package utcp
 
+import "sync"
+
 /********************************************************
 * @author: Ihc
 * @date: 2022/6/7 0007 10:28
@@ -7,49 +9,52 @@ package utcp
 * @description:
 *********************************************************/
 
+// ConnectionManager 链接管理接口
 type ConnectionManager interface {
 	AddConn(connId int, conn IConnection)
 	DelConn(connId int)
 	Counts() int
 }
 
-var tcpConnMgr *TCPConnectionManager
+var (
+	tcpConnMgr *TCPConnectionManager
+	lock       = sync.Mutex{}
+)
 
+// TCPConnectionManager 管理tcp链接
 type TCPConnectionManager struct {
 	connections map[int]IConnection
 	counts      int
 }
 
-func (tcpConnMgr *TCPConnectionManager) AddConn(connId int, conn IConnection) {
-	if _, ok := tcpConnMgr.connections[connId]; !ok {
-		tcpConnMgr.connections[connId] = conn
+// AddConn 添加链接
+func (tcpConnMgr *TCPConnectionManager) AddConn(conn IConnection) {
+	if _, ok := tcpConnMgr.connections[conn.GetConnUId()]; !ok {
+		tcpConnMgr.connections[conn.GetConnUId()] = conn
 		tcpConnMgr.counts++
 	}
 }
 
-func (tcpConnMgr *TCPConnectionManager) DelConn(connId int) {
-	if _, ok := tcpConnMgr.connections[connId]; ok {
-		delete(tcpConnMgr.connections, connId)
+// DelConnByConnUId 通过ConnUId删除链接
+func (tcpConnMgr *TCPConnectionManager) DelConnByConnUId(connUId int) {
+	if _, ok := tcpConnMgr.connections[connUId]; ok {
+		delete(tcpConnMgr.connections, connUId)
 		tcpConnMgr.counts--
 	}
 }
 
+// Counts 返回链接数
 func (tcpConnMgr *TCPConnectionManager) Counts() int {
 	return tcpConnMgr.counts
 }
 
-func init() {
-	tcpConnMgr = NewTCPConnectionManager()
-}
-
+// GetTCPConnectionMgr 获取tcp链接管理对象(单例)
 func GetTCPConnectionMgr() *TCPConnectionManager {
-	return tcpConnMgr
-}
-
-func NewTCPConnectionManager() *TCPConnectionManager {
+	lock.Lock()
 	if tcpConnMgr == nil {
 		tcpConnMgr = new(TCPConnectionManager)
 		tcpConnMgr.connections = make(map[int]IConnection)
 	}
+	lock.Unlock()
 	return tcpConnMgr
 }

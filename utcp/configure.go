@@ -9,8 +9,8 @@ import "time"
 * @description:
 *********************************************************/
 
-// DefaultConfigure 服务默认配置
-var DefaultConfigure *Configure
+// defaultConfigure 服务默认配置
+var defaultConfigure *Configure
 
 // Configure 服务配置信息
 type Configure struct {
@@ -21,12 +21,15 @@ type Configure struct {
 	HeartbeatInterval time.Duration // HeartbeatInterval 心跳间隔
 }
 
-func init() {
-	DefaultConfigure = &Configure{
-		Host:              "localhost",
-		Port:              9090,
-		Router:            NewRouter(),
-		Codec:             NewJsonCodec(),
-		HeartbeatInterval: 1 * time.Second,
+func GetDefaultConfigure() *Configure {
+	if defaultConfigure == nil {
+		defaultConfigure = &Configure{
+			Host:              "localhost",
+			Port:              9090,
+			Router:            NewRouter(),
+			Codec:             NewJsonCodec(),
+			HeartbeatInterval: 1 * time.Second,
+		}
 	}
+	return defaultConfigure
 }
