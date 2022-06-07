@@ -10,4 +10,5 @@ type Handler func(request IRequest, response IResponse)
 
 type IRoute interface {
 	GetHandler(requestId int) Handler
+	AddRoute(routeId int, handler Handler)
 }

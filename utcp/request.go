@@ -12,4 +12,5 @@ type IRequest interface {
 }
 
 type Request struct {
+	Id int
 }

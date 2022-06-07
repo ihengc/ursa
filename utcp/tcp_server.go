@@ -22,7 +22,7 @@ func (tcpServer *TCPServer) Start() {
 		if err != nil {
 			continue
 		}
-		tcpServer.handle(conn)
+		go tcpServer.handle(conn)
 	}
 }
 
@@ -41,4 +41,12 @@ func (tcpServer *TCPServer) handle(conn net.Conn) {
 		handler(req, resp)
 		respChannel <- resp
 	}
+}
+
+func (tcpServer *TCPServer) LocalAddr() string {
+	return tcpServer.ln.Addr().String()
+}
+
+func (tcpServer *TCPServer) Stop() {
+	tcpServer.running = false
 }

@@ -12,6 +12,9 @@ import (
 * @description:
 *********************************************************/
 
+type IConnection interface {
+}
+
 type TCPConnection struct {
 	uid         int64
 	running     bool
