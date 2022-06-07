@@ -21,6 +21,7 @@ type TCPServer struct {
 
 // handleConnection 链接处理
 func (tcpServer *TCPServer) handleConnection(ctx context.Context, conn net.Conn) {
+	// todo 生成全局ConnUId
 	tcpConn := NewTCPConnection(ctx, 1, conn, tcpServer.codec)
 	tcpConnMgr := GetTCPConnectionMgr()
 	tcpConnMgr.AddConn(tcpConn)
