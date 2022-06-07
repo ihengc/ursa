@@ -1,9 +1,8 @@
 package utcp
 
 import (
-	"context"
-	"fmt"
 	"net"
+	"ursa/utcp/internal"
 )
 
 /****************************************************************
@@ -12,55 +11,18 @@ import (
  * @description:
  ***************************************************************/
 
+// TCPServer tcp服务
 type TCPServer struct {
-	ln      net.Listener
-	running bool
-	codec   ICodec
-	router  IRouter
+	ln           net.Listener    // ln 监听套接字
+	isRunning    bool            // isRunning 表示服务是否正在运行
+	limitLoad    int             // limitLoad 负载上限
+	waitingQueue internal.IQueue // waitingQueue 排队队列
 }
 
-// handleConnection 链接处理
-func (tcpServer *TCPServer) handleConnection(ctx context.Context, conn net.Conn) {
-	// todo 生成全局ConnUId
-	tcpConn := NewTCPConnection(ctx, 1, conn, tcpServer.codec)
-	tcpConnMgr := GetTCPConnectionMgr()
-	tcpConnMgr.AddConn(tcpConn)
-	tcpConn.Start()
-}
-
-// Start 启动TCP服务
-func (tcpServer *TCPServer) Start() {
-	ctx, cancel := context.WithCancel(context.Background())
-	tcpServer.running = true
-	for tcpServer.running {
-		conn, err := tcpServer.ln.Accept()
-		if err != nil {
-			continue
-		}
-		go tcpServer.handleConnection(ctx, conn)
+// ListenAndServe 启动监听
+func (tcpServer *TCPServer) ListenAndServe() {
+	tcpServer.isRunning = true
+	for tcpServer.isRunning {
+		// 1.若当前服务已经负载
 	}
-	defer cancel() // 关闭协程
-}
-
-// LocalAddr 获取监听的地址和端口号
-func (tcpServer *TCPServer) LocalAddr() string {
-	return tcpServer.ln.Addr().String()
-}
-
-func (tcpServer *TCPServer) Stop() {
-	tcpServer.running = false
-}
-
-// NewTCPServerWithConf 创建TCP服务
-func NewTCPServerWithConf(configure *Configure) *TCPServer {
-	ln, err := net.Listen("tcp", fmt.Sprintf("%s:%d", configure.Host, configure.Port))
-	if err != nil {
-		panic(err)
-	}
-	tcpServer := &TCPServer{
-		ln:     ln,
-		router: configure.Router,
-		codec:  configure.Codec,
-	}
-	return tcpServer
 }

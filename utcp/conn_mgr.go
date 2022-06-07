@@ -11,9 +11,11 @@ import "sync"
 
 // ConnectionManager 链接管理接口
 type ConnectionManager interface {
-	AddConn(conn IConnection)
-	DelConnByConnUId(connUId int)
-	Counts() int
+	AddConn(connection IConnection)                            // AddConn 添加链接
+	KickOff(connection IConnection)                            // KickOff 删除此链接
+	Counts() int                                               // Counts 连接数
+	NotifyAll()                                                // NotifyAll 通知所有
+	NotifySeparate(connection IConnection, response IResponse) // NotifySeparate 单个通知
 }
 
 var tcpConnMgr *TCPConnectionManager
