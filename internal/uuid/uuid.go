@@ -8,7 +8,10 @@ import "bytes"
 * @version: 1.0
 * @description: uuid
 uuid占16字节
-uuid形式:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(32位16进制数)
+uuid形式:
+	xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(32位16进制数)
+	4-2-2-2-6
+	时间值低位(4)-时间值中位(2)-时间值高位和版本号(2)-时钟序列高位和变体值与时钟序列低位(2)-节点值(6)
 uuid构成:
 	00-05(6字节):节点值。
 	06(1字节):时钟序列低位。
@@ -48,6 +51,48 @@ const (
 )
 
 type UUID [Size]byte
+
+// SetVersion 设置UUID的版本号
+func (u *UUID) SetVersion(v byte) {
+	// 第7个字节的前4位存放UUID的版本,将前4位设置为0,然后设置前4位为新的版本号
+	//   0000 0000
+	// & 0000 1111
+	// | 0001 0000
+	u[6] = (u[6] & 0x0F) | (v << 4)
+}
+
+// Version 获取UUID的版本号
+func (u UUID) Version() byte {
+	return u[6] >> 4
+}
+
+// SetVariant 设置变体值
+func (u *UUID) SetVariant(v byte) {
+	switch v {
+	case VariantNCS:
+	case VariantRFC4122:
+	case VariantMicrosoft:
+	case VariantFuture:
+	default:
+
+	}
+}
+
+// Variant 获取变体值
+func (u UUID) Variant() byte {
+	switch {
+	case (u[8] >> 7) == 0x00:
+		return VariantNCS
+	case (u[8] >> 6) == 0x02:
+		return VariantRFC4122
+	case (u[8] >> 5) == 0x06:
+		return VariantMicrosoft
+	case (u[8] >> 5) == 0x07:
+		fallthrough
+	default:
+		return VariantFuture
+	}
+}
 
 // Equal 若u1和u2相等返回true；否则返回false
 func Equal(u1 UUID, u2 UUID) bool {
