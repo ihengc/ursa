@@ -31,11 +31,10 @@ type IApp interface {
 
 // App 表示一个应用
 type App struct {
-	mode         AppMode              // 应用模式
-	running      bool                 // 表示应用是否运行
-	acceptors    []acceptor.IAcceptor // 监听服务
-	closeChannel chan bool            // 存放关闭指令
-
+	mode          AppMode               // 应用模式
+	running       bool                  // 表示应用是否运行
+	acceptors     []acceptor.IAcceptor  // 监听服务
+	closeChannel  chan bool             // 存放关闭指令
 	handleService service.HandleService // 连接处理服务
 }
 
