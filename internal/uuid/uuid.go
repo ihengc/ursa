@@ -1,6 +1,9 @@
 package uuid
 
-import "bytes"
+import (
+	"bytes"
+	"encoding/hex"
+)
 
 /********************************************************
 * @author: Ihc
@@ -52,6 +55,8 @@ const (
 
 type UUID [Size]byte
 
+var NilUUID = UUID{}
+
 // SetVersion 设置UUID的版本号
 func (u *UUID) SetVersion(v byte) {
 	// 第7个字节的前4位存放UUID的版本,将前4位设置为0,然后设置前4位为新的版本号
@@ -92,6 +97,24 @@ func (u UUID) Variant() byte {
 	default:
 		return VariantFuture
 	}
+}
+
+// String 将字节形式的uuid转换成
+// xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx
+func (u UUID) String() string {
+	buffer := make([]byte, 36)
+
+	hex.Encode(buffer[0:8], u[0:4])
+	buffer[8] = '-'
+	hex.Encode(buffer[9:13], u[4:6])
+	buffer[13] = '-'
+	hex.Encode(buffer[14:18], u[6:8])
+	buffer[18] = '-'
+	hex.Encode(buffer[19:23], u[8:10])
+	buffer[23] = '-'
+	hex.Encode(buffer[24:], u[10:])
+
+	return string(buffer)
 }
 
 // Equal 若u1和u2相等返回true；否则返回false

@@ -34,19 +34,19 @@ type IGenerator interface {
 	NewUUID1() (UUID, error) // 基于时间的UUID生成版本
 }
 
+var generator = newUUIDGenerator()
+
 // uuidGenerator RFC4122
 type uuidGenerator struct {
-	storageLock       sync.Mutex
-	clockSequenceOnce sync.Once // 保证时间序列只生成一次
-	hardwareAddrOnce  sync.Once // 保证mac地址只被获取一次
-
-	hardwareAddrFunc hardwareAddrFunc // 用于获取mac地址
-	epochFunc        epochFunc        // 用于获取当前时间戳
-
-	rand             io.Reader
-	lastGenerateTime uint64  // 上次生成时间戳
-	clockSequence    uint16  // 时间序列2字节
-	hardwareAddr     [6]byte // mac地址6字节
+	storageLock       sync.Mutex       // 用于同步时钟序列
+	clockSequenceOnce sync.Once        // 保证时间序列只生成一次
+	hardwareAddrOnce  sync.Once        // 保证硬件地址只被获取一次
+	hardwareAddrFunc  hardwareAddrFunc // 用于获取硬件地址
+	epochFunc         epochFunc        // 用于获取当前时间戳
+	rand              io.Reader        // 伪随机接口
+	lastGenerateTime  uint64           // 上次生成时间戳
+	clockSequence     uint16           // 时间序列2 字节
+	hardwareAddr      [6]byte          // 硬件地址6 字节
 }
 
 // getHardwareAddr 获取硬件地址
@@ -129,9 +129,34 @@ func defaultHardwareAddrFunc() (net.HardwareAddr, error) {
 	return []byte{}, fmt.Errorf("uuid no hardware address found")
 }
 
+// NewUUID1 UUID版本1生成接口
 func (ug *uuidGenerator) NewUUID1() (UUID, error) {
+	uuid := UUID{}
+	timestamp, clockSeq, err := ug.getClockSequence() // 获取时间戳,时钟序列
+	if err != nil {
+		return NilUUID, err
+	}
 
-	// 获取时间序列
-	panic(nil)
+	binary.BigEndian.PutUint32(uuid[0:], uint32(timestamp))     // 时间戳低位
+	binary.BigEndian.PutUint16(uuid[4:], uint16(timestamp>>32)) // 时间戳中位
+	binary.BigEndian.PutUint16(uuid[6:], uint16(timestamp>>48)) // 时间戳低位
+	binary.BigEndian.PutUint16(uuid[8:], clockSeq)              // 时钟序列
 
+	hardwareAddr, err := ug.getHardwareAddr() // 获取硬件地址
+	if err != nil {
+		return NilUUID, err
+	}
+	copy(uuid[10:], hardwareAddr)
+
+	uuid.SetVersion(V1)
+	uuid.SetVariant(VariantRFC4122)
+
+	return uuid, nil
+}
+
+// 对包外暴露生成接口
+
+// NewUUID1 UUID生成(版本1)
+func NewUUID1() (UUID, error) {
+	return generator.NewUUID1()
 }
