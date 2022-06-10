@@ -26,12 +26,13 @@ const epochStart = 122192928000000000
 // epochFunc 获取当前时间,时间起点为1582.09.15 00:00:00
 type epochFunc func() time.Time
 
-// hardwareAddrFunc 获取mac地址函数
+// hardwareAddrFunc 获取硬件地址函数
 type hardwareAddrFunc func() (net.HardwareAddr, error)
 
 // IGenerator 生成UUID接口
 type IGenerator interface {
 	NewUUID1() (UUID, error) // 基于时间的UUID生成版本
+	// TODO 实现UUID生成2-5
 }
 
 var generator = newUUIDGenerator()

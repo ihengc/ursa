@@ -10,6 +10,8 @@ import (
 * @date: 2022/6/9 0009 14:01
 * @version: 1.0
 * @description: uuid
+RFC URL: https://www.ietf.org/rfc/rfc4122.txt
+
 uuid占16字节
 uuid形式:
 	xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(32位16进制数)
