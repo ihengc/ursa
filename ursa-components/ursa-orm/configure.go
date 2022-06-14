@@ -9,4 +9,6 @@ package ursa_orm
 
 // Config orm配置
 type Config struct {
+	MaxOpenConns int // 与数据库建立连接的最大数目
+	MaxIdleConns int // 数据库连接池中最大空置的连接数
 }
