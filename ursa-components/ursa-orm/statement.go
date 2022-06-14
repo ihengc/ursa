@@ -1,6 +1,8 @@
 package ursa_orm
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"strings"
 	"ursa/ursa-components/ursa-orm/clause"
 )
@@ -16,30 +18,42 @@ import (
 
 *********************************************************/
 
-type IStatement interface {
-	WriteByte(c byte) error
-	WriteString(s string) (int, error)
-	AddVar()
-	AddClause()
-	AddCondition()
-}
-
 type Statement struct {
+	DB   *DB
 	SQL  strings.Builder // sql语句
 	Vars []interface{}   // 语句参数
+	Dest interface{}
 }
 
-// WriteString 构建SQL
 func (stmt *Statement) WriteString(s string) (int, error) {
 	return stmt.SQL.WriteString(s)
 }
 
-// WriteByte 构建SQL
 func (stmt *Statement) WriteByte(c byte) error {
-	return stmt.SQL.WriteByte(c)
+	return stmt.WriteByte(c)
 }
 
-// QuoteTo 给语句增加引号
-func (stmt *Statement) QuoteTo(writer clause.Writer, field interface{}) {
+func (stmt *Statement) WriteQuoted(field interface{}) {
+	//TODO implement me
+	panic("implement me")
+}
 
+func (stmt *Statement) AddVar(writer clause.Writer, vars ...interface{}) {
+	for idx, v := range vars {
+		if idx > 0 {
+			writer.WriteByte(',')
+		}
+
+		switch v := v.(type) {
+		case sql.NamedArg:
+			stmt.Vars = append(stmt.Vars, v.Value)
+		case clause.Column, clause.Table:
+		case driver.Valuer:
+		case []byte:
+		case []interface{}:
+		case *DB:
+		default:
+
+		}
+	}
 }

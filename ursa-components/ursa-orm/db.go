@@ -1,6 +1,9 @@
 package ursa_orm
 
-import "database/sql"
+import (
+	"database/sql"
+	"ursa/ursa-components/ursa-orm/dialect"
+)
 
 /********************************************************
 * @author: Ihc
@@ -11,20 +14,28 @@ import "database/sql"
 
 type DB struct {
 	*Config
-	dbConn *sql.DB
-	stmt   *Statement
+	rawDB     *sql.DB
+	executor  *Executor
+	Statement *Statement
 }
 
-func (db *DB) DBConn() *sql.DB {
-	return db.dbConn
+func (db *DB) getInstance() *DB {
+	return db
 }
 
-// Open 建立与数据库的连接
-func Open(driverName, dataSourceName string) (*DB, error) {
-	dbConn, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		return nil, err
+// Open 打开数据库连接
+func Open(dialect dialect.IDialect, opts ...Option) (*DB, error) {
+	conf := &Config{}
+	for _, opt := range opts {
+		if opt != nil {
+			if err := opt.Apply(conf); err != nil {
+				return nil, err
+			}
+		}
 	}
-	db := &DB{dbConn: dbConn}
+	db := &DB{}
+	db.Statement = &Statement{
+		DB: db,
+	}
 	return db, nil
 }

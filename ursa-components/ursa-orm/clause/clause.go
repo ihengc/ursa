@@ -16,6 +16,21 @@ type Writer interface {
 // Builder 语句构建接口
 type Builder interface {
 	Writer
-	WriteQuoted(field interface{}) // 给字段增加引号
-	AddVar(Writer, ...interface{}) // 给语句增加参数
+	WriteQuoted(field interface{})             // 给字段增加引号
+	AddVar(writer Writer, vars ...interface{}) // 给语句增加参数
+}
+
+type Clause struct {
+}
+
+type Column struct {
+	Raw   bool
+	Table string
+	Name  string
+	Alias string
+}
+
+type Table struct {
+	Name  string
+	Alias string
 }

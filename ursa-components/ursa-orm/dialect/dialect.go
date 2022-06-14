@@ -10,4 +10,5 @@ package dialect
 // IDialect 数据库类型
 type IDialect interface {
 	Name() string // 数据库名称
+	Execute(sql string, vars ...interface{})
 }

@@ -7,8 +7,12 @@ package ursa_orm
 * @description:
 *********************************************************/
 
+// Option 获取数据库连接时的配置选项接口
+type Option interface {
+	Apply(config *Config) error // 应用config配置
+}
+
 // Config orm配置
 type Config struct {
-	MaxOpenConns int // 与数据库建立连接的最大数目
-	MaxIdleConns int // 数据库连接池中最大空置的连接数
+	CreateBatchSize int // 批量新建
 }
