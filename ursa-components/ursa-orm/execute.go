@@ -13,5 +13,9 @@ type processor struct {
 
 // Execute 执行sql
 func (p *processor) Execute(db *DB) {
-
+	dbConn := db.DBConn()
+	_, err := dbConn.Exec(db.stmt.SQL.String(), db.stmt.Vars...)
+	if err != nil {
+		return
+	}
 }

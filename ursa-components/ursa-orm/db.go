@@ -12,6 +12,7 @@ import "database/sql"
 type DB struct {
 	*Config
 	dbConn *sql.DB
+	stmt   *Statement
 }
 
 func (db *DB) DBConn() *sql.DB {
